@@ -1,0 +1,7 @@
+gym==0.26.1
+numpy
+pygame
+sphinx==5.1.1
+sphinx_math_dollar
+sphinx-rtd-theme
+-e.

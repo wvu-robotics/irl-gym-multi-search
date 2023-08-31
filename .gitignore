@@ -1,0 +1,12 @@
+build/
+irl_gym.egg-info/
+*.eps
+*.png
+*.pyc
+*.gif
+*.npy
+*.svg
+*.xcf
+*.pickle
+*.vscode
+*.doctree
