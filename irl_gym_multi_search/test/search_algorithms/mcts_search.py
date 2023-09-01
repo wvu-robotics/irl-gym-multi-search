@@ -41,7 +41,6 @@ class MCTS:
             1: np.array([-1, 0]),  # left
             2: np.array([0, 1]),  # down
             3: np.array([1, 0]),  # right
-            4: np.array([0, 0])   # don't move
         }
         self.total_visits = 0
         root_priors = self.compute_priors(self.cur_pos, self.current_fov)

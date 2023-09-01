@@ -43,22 +43,21 @@ class MCTS_Region:
             1: np.array([-1, 0]),  # left
             2: np.array([0, 1]),  # down
             3: np.array([1, 0]),  # right
-            4: np.array([0, 0])   # don't move
         }
         for i, region in enumerate(self.regions):
-            self.actions[i + 5] = region # travel to the nearest point within region
+            self.actions[i + 4] = region # travel to the nearest point within region
         self.total_visits = 0
         root_priors = self.compute_priors(self.cur_pos, self.current_fov)
         self.root = MCTSRegionNode(None, 1.0)  # Create the root node
         self.root.expand(root_priors)  # Expand the root's children
 
     def action_to_pos(self, action, cur_pos):
-        if action < 5:
+        if action < 4:
             # Convert the resulting array to a tuple of integers
             next_pos = tuple(cur_pos + self.actions[action])
             return next_pos, [action]
         else:
-            region = self.regions[action - 5]
+            region = self.regions[action - 4]
             # nearest_point = self.get_nearest_point_in_region(region, cur_pos)
             max_point = self.get_highest_valued_point_in_region(region)
             path_to_region = self.calculate_path_to_region(region, cur_pos)
@@ -98,7 +97,7 @@ class MCTS_Region:
         action_rewards = []
         within_regions = self.agent_within_regions(cur_pos) # Get the current region the agent is in
         
-        for action in range(5):  # Existing actions from 0 to 4
+        for action in range(4):  # Existing actions from 0 to 3
             delta = self.actions[action]
             next_pos = cur_pos + delta
             reward = self.compute_individual_move_reward(next_pos, fov)
@@ -131,8 +130,8 @@ class MCTS_Region:
             next_pos, path_or_action = self.action_to_pos(action, cur_pos)
             if next_pos[0] < 0 or next_pos[0] >= self.size_x or next_pos[1] < 0 or next_pos[1] >= self.size_y:
                 continue
-            if action > 4:
-                region_idx = action - 5
+            if action > 3:
+                region_idx = action - 4
                 region = self.regions[region_idx]
                 reward += self.compute_region_action_reward(region)
             else:
@@ -175,7 +174,7 @@ class MCTS_Region:
         dx, dy = max_point[0] - cur_pos[0], max_point[1] - cur_pos[1]
 
         if abs(dx) < 1 and abs(dy) < 1: # if the selected point is the agent's current point
-            return [np.random.randint(0, 4)] # move randomly
+            return [np.random.randint(0, 3)] # move randomly
     
         # Determine the actions needed to reach the destination
         path = []
@@ -221,8 +220,8 @@ class MCTS_Region:
             node = self.select_child(path[-1])
             next_pos, path_to_region = self.action_to_pos(node.action, cur_pos) # Unpack the return value here
             cur_pos = next_pos # Update cur_pos with the new position
-            action_to_rotation = {0: 0, 1: 1, 2: 2, 3: 3, 4: 0}
-            if node.action < 5:
+            action_to_rotation = {0: 0, 1: 1, 2: 2, 3: 3}
+            if node.action < 4:
                 rotation_degree = action_to_rotation[node.action]
             fov = np.rot90(fov, k=rotation_degree)
 
@@ -262,8 +261,8 @@ class MCTS_Region:
         best_action_node = self.select_child(self.root)
         best_action = best_action_node.action
         max_reward = max(rewards)
-        if best_action > 4:
-            best_region = self.regions[best_action - 5]
+        if best_action > 3:
+            best_region = self.regions[best_action - 4]
             # print('\n\n')
             # print('Region: ', best_region["index"])
             # print('\n\n')

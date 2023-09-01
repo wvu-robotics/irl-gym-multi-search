@@ -31,7 +31,7 @@ def search_decision_maker(size_x, size_y, cur_pos, observation, obstacles, last_
     else:
         region_action_modifier = 0.0036 / (size_x * size_y)
         mcts_region = MCTS_Region(size_x, size_y, cur_pos, distribution, regions, fov_dict, current_fov, cur_orientation, last_action, obstacles,
-                                  num_iterations=165, c_param=0.3, max_rollout_steps=42, region_action_modifier=region_action_modifier)
+                                  num_iterations=165, c_param=0.35, max_rollout_steps=42, region_action_modifier=region_action_modifier)
         best_path = mcts_region.simulate()
     print(best_path)
 
@@ -40,7 +40,7 @@ def search_decision_maker(size_x, size_y, cur_pos, observation, obstacles, last_
     ###############################  MCTS
 
     # mcts_search = MCTS(size_x, size_y, cur_pos, distribution, fov_dict, current_fov, cur_orientation, last_action, obstacles,
-    #                         num_iterations=165, c_param=0.3, max_rollout_steps=42)
+    #                         num_iterations=220, c_param=300.0, max_rollout_steps=120)
     # best_path = mcts_search.simulate()
     # print(best_path)
 

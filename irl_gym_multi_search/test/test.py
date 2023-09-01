@@ -62,6 +62,8 @@ fov = [[1, 1, 1],
 #        [0, 1, 0],
 #        [0, 0, 0]]
 
+# fov = [[1]]
+
 fov_size = [len(fov[0]), len(fov)] # gets the field of view size [x, y]
 fov_agent_x = fov_size[0] // 2
 fov_agent_y = fov_size[1] // 2 
@@ -73,27 +75,27 @@ fov_dict = {
     "fov_agent_position": fov_agent_position
 }
 
-cell_size = 10
+cell_size = 16
 render_fps = 60  # max fps
 render_fps_gif = 20  # gif fps
 
 render = True
 save_to_gif = False
-save_data = False
+save_data = True
 
 num_trials = 1  # number of trials
 
 seed = 3
 rng = r.default_rng(seed=seed)
 
-max_steps = 1800
+max_steps = 2500
 
 # size of environment
-size_x = 130
-size_y = 105
+size_x = 80
+size_y = 70
 
 # Initialize start positions and directions
-start = [[10, 10]]
+start = [[30, 48]]
 start_dir = ['u']
 
 start_dir_copy = copy.deepcopy(start_dir)
@@ -295,13 +297,13 @@ current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 if render: # only save to gif if rendered
     if save_to_gif:
-        gif_file_name = f'gym_coop_search/test/gifs/recording_{current_time}.gif'
+        gif_file_name = f'irl_gym_multi_search/test/gifs/recording_{current_time}.gif'
         print('Saving pygame frames to gif')
         imageio.mimsave(gif_file_name, frames, duration=1000/render_fps_gif, loop=0)
         print('Saved to gif')
 
 if save_data:
-    results_file_name = f'gym_coop_search/test/experiment data/experiment_data_{current_time}.pickle'
+    results_file_name = f'irl_gym_multi_search/test/experiment data/experiment_data_{current_time}.pickle'
     # save setup and results
     with open(results_file_name, 'wb') as f:
         pickle.dump((setup, results), f)
