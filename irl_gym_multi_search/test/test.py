@@ -49,7 +49,7 @@ import copy
 # 1 is observable, 0 is not. The middle cell will be the agent's position within this grid. The size in both directions must be an odd number to ensure a center point.
 # this must also be square to be rotated. This assumes the start direction is up
 fov = [[1, 1, 1],
-       [1, 0, 1],
+       [1, 1, 1],
        [1, 1, 1]]
 
 # fov = [[0, 1, 1, 1, 0],

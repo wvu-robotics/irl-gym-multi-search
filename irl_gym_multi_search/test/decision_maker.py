@@ -9,6 +9,7 @@ from search_algorithms.ra_ucb_search import RA_UCB
 from search_algorithms.beam_search import beam_search
 from search_algorithms.depth_limited_search import DLS
 from search_algorithms.mcts_search_region import MCTS_Region
+from search_algorithms.mcts_search_region_estimated import MCTS_Region_Estimated
 from search_algorithms.mcts_search import MCTS
 # from search_algorithms.receding_horizon_search import receding_horizon_search
 
@@ -29,13 +30,26 @@ def search_decision_maker(size_x, size_y, cur_pos, observation, obstacles, last_
         path.pop(0) # remove the first action within the path
         best_path = path # update the path to be the current path
     else:
-        region_action_modifier = 0.0036 / (size_x * size_y)
         mcts_region = MCTS_Region(size_x, size_y, cur_pos, distribution, regions, fov_dict, current_fov, cur_orientation, last_action, obstacles,
-                                  num_iterations=165, c_param=0.35, max_rollout_steps=42, region_action_modifier=region_action_modifier)
+                                  num_iterations=80, c_param=0.3, max_rollout_steps=25)
         best_path = mcts_region.simulate()
     print(best_path)
 
     ###############################  End of MCTS Regions
+
+    ###############################  MCTS Regions Estimated
+
+    # if path is not None and (len(path) > 1 or (len(path) == 1 and path[0] is None)): # if there is any leftover path from the previous MCTS run
+    #     path.pop(0) # remove the first action within the path
+    #     best_path = path # update the path to be the current path
+    # else:
+    #     region_action_modifier = 0.0036 / (size_x * size_y)
+    #     mcts_region = MCTS_Region_Estimated(size_x, size_y, cur_pos, distribution, regions, fov_dict, current_fov, cur_orientation, last_action, obstacles,
+    #                               num_iterations=80, c_param=0.3, max_rollout_steps=25, region_action_modifier=region_action_modifier)
+    #     best_path = mcts_region.simulate()
+    # print(best_path)
+
+    ###############################  End of MCTS Regions Estimated
 
     ###############################  MCTS
 

@@ -21,7 +21,7 @@ class MCTSRegionNode:
             self.children.append(child)
 
 class MCTS_Region:
-    def __init__(self, size_x, size_y, cur_pos, distribution, regions, fov_dict, current_fov, cur_orientation, last_action, obstacles, num_iterations, c_param, max_rollout_steps=150, region_action_modifier=0.000001):
+    def __init__(self, size_x, size_y, cur_pos, distribution, regions, fov_dict, current_fov, cur_orientation, last_action, obstacles, num_iterations, c_param, max_rollout_steps=150):
         self.size_x = size_x
         self.size_y = size_y
         self.cur_pos = cur_pos
@@ -37,7 +37,6 @@ class MCTS_Region:
         self.num_iterations = num_iterations
         self.c_param = c_param
         self.max_rollout_steps = max_rollout_steps
-        self.region_action_modifier = region_action_modifier
         self.actions = {
             0: np.array([0, -1]),  # up
             1: np.array([-1, 0]),  # left
@@ -58,10 +57,10 @@ class MCTS_Region:
             return next_pos, [action]
         else:
             region = self.regions[action - 4]
-            # nearest_point = self.get_nearest_point_in_region(region, cur_pos)
+            nearest_point = self.get_nearest_point_in_region(region, cur_pos)
             max_point = self.get_highest_valued_point_in_region(region)
             path_to_region = self.calculate_path_to_region(region, cur_pos)
-            return max_point, path_to_region
+            return nearest_point, path_to_region
 
     def compute_ucb(self, node):
         if node.visits == 0 or node.visits != node.parent.visits:
@@ -77,21 +76,20 @@ class MCTS_Region:
                 if (0 <= relative_pos[0] < self.size_x and 0 <= relative_pos[1] < self.size_y and self.obstacles[relative_pos[0], relative_pos[1]] != 1):
                     reward += self.distribution[relative_pos[0], relative_pos[1]] ** 2
         else:
-            reward = -np.inf
-        return reward
+            reward = -np.inf # large penalty for moving out of the environment or into an obstacle
+        return reward - (50.0 / (self.size_x * self.size_y)) # penalize longer moves
 
     def compute_region_action_reward(self, region):
-        centroid = region['centroid']
-        distance_to_centroid = ((centroid[0] - self.cur_pos[0]) ** 2 + (centroid[1] - self.cur_pos[1]) ** 2) ** 0.5
-        distance_factor = (1.0 / max(distance_to_centroid, 1.0)) * (5.9 / (self.size_x * self.size_y))
-        avg_value = region['weight'] * (0.18 / (self.size_x * self.size_y))
-        reward = (avg_value + distance_factor) * self.region_action_modifier
-        # print('Region: ', region["index"])
-        # print('avg val: ', np.round(avg_value, 8))
-        # print('Dist fact: ', np.round(distance_factor, 8))
-        # print('Tot Reward: ', reward)
-        # print('')
-        return reward
+        region_reward = 0
+        path = self.calculate_path_to_region(region, self.cur_pos)
+        position = self.cur_pos
+        for a in path:
+            next_pos = self.action_to_pos(a, position)
+            next_pos_coordinates = next_pos[0]
+            region_reward += self.compute_individual_move_reward(next_pos_coordinates, self.current_fov)
+            position = next_pos_coordinates
+
+        return region_reward
 
     def compute_priors(self, cur_pos, fov):
         action_rewards = []
@@ -102,11 +100,21 @@ class MCTS_Region:
             next_pos = cur_pos + delta
             reward = self.compute_individual_move_reward(next_pos, fov)
             action_rewards.append(reward)
+            # print('Action: ', action)
+            # print('Reward: ', np.round(reward, 7))
 
+        # Compute rewards for the "option" actions (regions)
         for region_idx, region in enumerate(self.regions):
-            if region_idx not in within_regions: # Skip if the region is one the agent is currently in (within future sim steps also)
+            if region_idx not in within_regions: # If the agent isnt in the current region, compute its reward
                 reward = self.compute_region_action_reward(region)
                 action_rewards.append(reward)
+            # else: # The agent is actively within this region (now or in future simulated steps)
+                # reward = -0.1 # Penalize region actions within the current region
+            # action_rewards.append(reward)
+
+        #     print('Region: ', region_idx)
+        #     print('Reward: ', np.round(reward, 7))
+        # print('')
 
         max_reward = max(action_rewards)
         action_rewards = [r if r != -np.inf else 0 for r in action_rewards]
@@ -168,7 +176,8 @@ class MCTS_Region:
 
     def calculate_path_to_region(self, region, cur_pos):
         # Find the nearest point within the region
-        max_point = self.get_highest_valued_point_in_region(region)
+        max_point = self.get_nearest_point_in_region(region, cur_pos)
+        # max_point = self.get_highest_valued_point_in_region(region)
 
         # Calculate the differences along both dimensions
         dx, dy = max_point[0] - cur_pos[0], max_point[1] - cur_pos[1]
@@ -245,6 +254,7 @@ class MCTS_Region:
             return node, reward
 
     def simulate(self):
+        within_regions = self.agent_within_regions(self.cur_pos)
         rewards = []
         self.compute_new_region_weights() # update the regions to reflect the current distribution. Rewards will be more realistic
 
@@ -263,9 +273,7 @@ class MCTS_Region:
         max_reward = max(rewards)
         if best_action > 3:
             best_region = self.regions[best_action - 4]
-            # print('\n\n')
-            # print('Region: ', best_region["index"])
-            # print('\n\n')
+            print('\nGoing to region', best_region["index"])
             best_path = self.calculate_path_to_region(best_region, self.cur_pos)
         else:
             best_path = [best_action]
