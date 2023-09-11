@@ -75,15 +75,15 @@ fov_dict = {
     "fov_agent_position": fov_agent_position
 }
 
-cell_size = 16
+cell_size = 12
 render_fps = 60  # max fps
 render_fps_gif = 20  # gif fps
 
-render = True
+render = False
 save_to_gif = False
 save_data = True
 
-num_trials = 1  # number of trials
+num_trials = 10  # number of trials
 
 seed = 3
 rng = r.default_rng(seed=seed)
@@ -91,11 +91,11 @@ rng = r.default_rng(seed=seed)
 max_steps = 2500
 
 # size of environment
-size_x = 80
-size_y = 70
+size_x = 100
+size_y = 100
 
 # Initialize start positions and directions
-start = [[30, 48]]
+start = [[10, 95]]
 start_dir = ['u']
 
 start_dir_copy = copy.deepcopy(start_dir)
@@ -269,9 +269,9 @@ for i in range(num_trials): # loop through the number of trials
         # end of trial loop for individual trials
     
     # once the current trial has finished, save its results and let the user know the outcome
-    results.append((step, not is_trunc))  # save the number of steps and is_trunc status for each trial
     trial_end_time = time.time()
     trial_elapsed_time = trial_end_time - trial_start_time
+    results.append((step, not is_trunc, trial_elapsed_time))  # save the number of steps and is_trunc status for each trial
     trial_times.append(trial_elapsed_time)
     print('Trial time (sec): ', trial_elapsed_time)
     if is_trunc == False:
@@ -306,11 +306,11 @@ if save_data:
     results_file_name = f'irl_gym_multi_search/test/experiment data/experiment_data_{current_time}.pickle'
     # save setup and results
     with open(results_file_name, 'wb') as f:
-        pickle.dump((setup, results), f)
+        pickle.dump((setup, results, trial_times), f)
 
     # print results
     for i, result in enumerate(results):
-        steps, is_trunc = result
+        steps, is_trunc, trial_time = result
         if is_trunc == True:
             print(f'Trial {i+1}: Goal Reached in {steps} steps')
         else:

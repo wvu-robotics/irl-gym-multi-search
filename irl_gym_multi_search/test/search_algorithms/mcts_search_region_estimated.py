@@ -84,8 +84,9 @@ class MCTS_Region_Estimated:
         centroid = region['centroid']
         distance_to_centroid = ((centroid[0] - self.cur_pos[0]) ** 2 + (centroid[1] - self.cur_pos[1]) ** 2) ** 0.5
         distance_factor = (1.0 / max(distance_to_centroid, 1.0)) * (5.9 / (self.size_x * self.size_y))
-        avg_value = region['weight'] * (0.18 / (self.size_x * self.size_y))
-        reward = (avg_value + distance_factor) * self.region_action_modifier
+        # avg_value = region['weight'] * (0.18 / (self.size_x * self.size_y))
+        # avg_value = 0
+        reward = distance_factor * self.region_action_modifier
         # print('Region: ', region["index"])
         # print('avg val: ', np.round(avg_value, 8))
         # print('Dist fact: ', np.round(distance_factor, 8))

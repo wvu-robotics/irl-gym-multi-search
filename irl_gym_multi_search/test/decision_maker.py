@@ -26,28 +26,28 @@ def search_decision_maker(size_x, size_y, cur_pos, observation, obstacles, last_
 
     ###############################  MCTS Regions
 
-    if path is not None and (len(path) > 1 or (len(path) == 1 and path[0] is None)): # if there is any leftover path from the previous MCTS run
-        path.pop(0) # remove the first action within the path
-        best_path = path # update the path to be the current path
-    else:
-        mcts_region = MCTS_Region(size_x, size_y, cur_pos, distribution, regions, fov_dict, current_fov, cur_orientation, last_action, obstacles,
-                                  num_iterations=80, c_param=0.3, max_rollout_steps=25)
-        best_path = mcts_region.simulate()
-    print(best_path)
+    # if path is not None and (len(path) > 1 or (len(path) == 1 and path[0] is None)): # if there is any leftover path from the previous MCTS run
+    #     path.pop(0) # remove the first action within the path
+    #     best_path = path # update the path to be the current path
+    # else:
+    #     mcts_region = MCTS_Region(size_x, size_y, cur_pos, distribution, regions, fov_dict, current_fov, cur_orientation, last_action, obstacles,
+    #                               num_iterations=80, c_param=0.3, max_rollout_steps=25)
+    #     best_path = mcts_region.simulate()
+    # print(best_path)
 
     ###############################  End of MCTS Regions
 
     ###############################  MCTS Regions Estimated
 
-    # if path is not None and (len(path) > 1 or (len(path) == 1 and path[0] is None)): # if there is any leftover path from the previous MCTS run
-    #     path.pop(0) # remove the first action within the path
-    #     best_path = path # update the path to be the current path
-    # else:
-    #     region_action_modifier = 0.0036 / (size_x * size_y)
-    #     mcts_region = MCTS_Region_Estimated(size_x, size_y, cur_pos, distribution, regions, fov_dict, current_fov, cur_orientation, last_action, obstacles,
-    #                               num_iterations=80, c_param=0.3, max_rollout_steps=25, region_action_modifier=region_action_modifier)
-    #     best_path = mcts_region.simulate()
-    # print(best_path)
+    if path is not None and (len(path) > 1 or (len(path) == 1 and path[0] is None)): # if there is any leftover path from the previous MCTS run
+        path.pop(0) # remove the first action within the path
+        best_path = path # update the path to be the current path
+    else:
+        region_action_modifier = 0.00016 / (size_x * size_y)
+        mcts_region = MCTS_Region_Estimated(size_x, size_y, cur_pos, distribution, regions, fov_dict, current_fov, cur_orientation, last_action, obstacles,
+                                  num_iterations=120, c_param=0.42, max_rollout_steps=100, region_action_modifier=region_action_modifier)
+        best_path = mcts_region.simulate()
+    print(best_path)
 
     ###############################  End of MCTS Regions Estimated
 
