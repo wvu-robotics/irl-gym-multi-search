@@ -4,7 +4,7 @@ import numpy as np
 def update_distribution(size_x, size_y, num_agents, cur_pos, cur_fov, observation, fov_dict, obstacles, prior_distribution):
     # Start with a copy of the prior distribution
     new_distribution = prior_distribution.copy()
-
+    
     for agent_id in range(num_agents):
         agent_position = cur_pos[agent_id]
         fov_offset_x, fov_offset_y = fov_dict["fov_agent_position"]  # Offset of the agent's position within the FOV

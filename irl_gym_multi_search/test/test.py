@@ -1,6 +1,6 @@
 import gymnasium as gym
 import numpy as np
-import numpy.random as r
+import numpy.random as rand
 import imageio
 import pickle
 from copy import deepcopy
@@ -43,6 +43,9 @@ import copy
 # Max episode steps
 ##############################################
 
+def update_search_distribution(size_x, size_y, num_agents, current_position, current_fov, search_observation, fov_dict, obstacles, search_distribution):
+    search_distribution = update_distribution(size_x, size_y, num_agents, current_position, current_fov, search_observation, fov_dict, obstacles, search_distribution)  # update the search distribution
+    return search_distribution
 
 
 # represents the field of view for an agent. Each value represents a single cell.
@@ -75,27 +78,28 @@ fov_dict = {
     "fov_agent_position": fov_agent_position
 }
 
-cell_size = 12
+cell_size = 10
 render_fps = 60  # max fps
 render_fps_gif = 20  # gif fps
 
 render = False
 save_to_gif = False
 save_data = True
+use_fixed_seed = True  # True: uses given seed below. False: each trial will be given a random seed.
 
-num_trials = 10  # number of trials
+num_trials = 3  # number of trials
 
 seed = 3
-rng = r.default_rng(seed=seed)
+rng_seed = rand.default_rng(seed=seed) # rng with seed
 
-max_steps = 2500
+max_steps = 3000
 
 # size of environment
-size_x = 100
-size_y = 100
+size_x = 40
+size_y = 40
 
 # Initialize start positions and directions
-start = [[10, 95]]
+start = [[30, 36]]
 start_dir = ['u']
 
 start_dir_copy = copy.deepcopy(start_dir)
@@ -144,13 +148,13 @@ for region in regions:
     ))# region['points'] also exists, and represents the xy coords for every cell within the region
 
 # Get new goal positions
-selected_regions = rng.choice(regions, min(num_objects, len(regions)), replace=False)
+selected_regions = rng_seed.choice(regions, min(num_objects, len(regions)), replace=False)
 goal = []
 for region in selected_regions:
     points = region['points']
     valid_goal = False # Keep trying until a valid goal is found
     while not valid_goal:
-        x, y = rng.choice(points) # Randomly select a point within the region
+        x, y = rng_seed.choice(points) # Randomly select a point within the region
         if not any([x == s[0] and y == s[1] for s in start]): # Check if the goal is a start position
             goal.append([x, y])
             valid_goal = True
@@ -198,6 +202,7 @@ overall_start_time = time.time() # start the timer
 trial_times = [] # create a list of individual trial times
 
 for i in range(num_trials): # loop through the number of trials
+    rng = rand.default_rng() # change the rng every trial
     trial_start_time = time.time() # start the timer for the active trial
     print(f'Starting trial {i+1}')
 
@@ -222,7 +227,8 @@ for i in range(num_trials): # loop through the number of trials
     if render: # initial frame render
         frame = env.custom_render(search_distribution, obstacles, region_outlines, return_frame=True)  # render the environment with search probabilities
         frames.append(frame)
-        time.sleep(0.5) # let the pygame window load and render before starting
+        time.sleep(0.5)
+        # time.sleep(3.5) # let the pygame window load and render before starting
 
     for agent_id in range(num_agents): # step through each agent
         # Get initial observation
@@ -234,7 +240,7 @@ for i in range(num_trials): # loop through the number of trials
         current_fov[agent_id] = observation[agent_id]['rotated_fov'] # update the fov (changes with orientation)
 
     # update the distribution with the initial observation(s)
-    search_distribution = update_distribution(size_x, size_y, num_agents, current_position, current_fov, search_observation, fov_dict, obstacles, search_distribution)
+    search_distribution = update_search_distribution(size_x, size_y, num_agents, current_position, current_fov, search_observation, fov_dict, obstacles, search_distribution)
 
     if render: # render the updated distribution
         frame = env.custom_render(search_distribution, obstacles, region_outlines, return_frame=True)  # render the environment with search probabilities
@@ -260,7 +266,7 @@ for i in range(num_trials): # loop through the number of trials
             cur_orientation[agent_id] = observation[agent_id]['orientation']  # update orientation
             current_fov[agent_id] = observation[agent_id]['rotated_fov'] # update the fov (changes with orientation)
 
-        search_distribution = update_distribution(size_x, size_y, num_agents, current_position, current_fov, search_observation, fov_dict, obstacles, search_distribution)  # update the search distribution
+        search_distribution = update_search_distribution(size_x, size_y, num_agents, current_position, current_fov, search_observation, fov_dict, obstacles, search_distribution)  # update the search distribution
         if render:
             frame = env.custom_render(search_distribution, obstacles, region_outlines, return_frame=True)  # render the environment with search probabilities
             frames.append(frame)
@@ -319,3 +325,6 @@ if save_data:
     print(f'Setup and results saved within: {results_file_name}')
 
     view_results(results_file_name)
+
+    print('\nTotal time (seconds): ', overall_elapsed_time)
+    print('\nTotal time (minutes): ', overall_elapsed_time / 60)

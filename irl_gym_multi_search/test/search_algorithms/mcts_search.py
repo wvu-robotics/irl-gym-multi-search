@@ -34,6 +34,7 @@ class MCTS:
         self.distribution /= np.sum(self.distribution)
         self.obstacles = obstacles
         self.num_iterations = num_iterations
+        # self.c_param = c_param * np.sqrt(size_x * size_y) / 10 # Adjust c_param based on the environment size
         self.c_param = c_param
         self.max_rollout_steps = max_rollout_steps
         self.actions = {
@@ -174,7 +175,6 @@ class MCTS:
         best_action_node = self.select_child(self.root)
         best_action = best_action_node.action
         max_reward = max(rewards)
-        if best_action > 4:
-            print('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr')
         best_path = [best_action]
+        print(self.c_param)
         return best_path

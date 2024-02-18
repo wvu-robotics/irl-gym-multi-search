@@ -18,7 +18,6 @@ def event_horizon(cur_pos, distribution, horizon=5):
     
     # Extract the part of the distribution within the event horizon.
     horizon_distribution = distribution[min_x:max_x, min_y:max_y]
-    
     # Find the highest probability density within the event horizon.
     max_prob_pos = np.unravel_index(horizon_distribution.argmax(), horizon_distribution.shape)
     

@@ -21,7 +21,7 @@ def view_results(file_path):
     max_steps = results_df['Steps'].max()
     min_steps = results_df['Steps'].min()
     median_steps = results_df['Steps'].median()
-    print(f"\nAverage Steps: {avg_steps:.2f}")
+    print(f"\nAverage Steps: {avg_steps:.4f}")
     print(f"Max Steps: {max_steps}")
     print(f"Min Steps: {min_steps}")
     print(f"Median Steps: {median_steps}")
@@ -31,10 +31,10 @@ def view_results(file_path):
     max_time = results_df['Elapsed Time (s)'].max()
     min_time = results_df['Elapsed Time (s)'].min()
     median_time = results_df['Elapsed Time (s)'].median()
-    print(f"\nAverage Time (s): {avg_time:.2f}")
-    print(f"Max Time (s): {max_time:.2f}")
-    print(f"Min Time (s): {min_time:.2f}")
-    print(f"Median Time (s): {median_time:.2f}\n")
+    print(f"\nAverage Time (s): {avg_time:.4f}")
+    print(f"Max Time (s): {max_time:.4f}")
+    print(f"Min Time (s): {min_time:.4f}")
+    print(f"Median Time (s): {median_time:.4f}\n")
 
 # Example usage
 # folder_name = 'experiment data/'

@@ -1,8 +1,11 @@
 
 import numpy as np
+import numpy.random as rand
+import copy
 from queue import PriorityQueue
 from concurrent.futures import ProcessPoolExecutor
 import os
+from irl_gym_multi_search.test.update_rollout_distribution import update_rollout_distribution
 
 class MCTSRegionEstimatedNode:
     def __init__(self, parent, prior):
@@ -31,8 +34,11 @@ class MCTS_Region_Estimated:
         self.orientation = cur_orientation
         self.orientation_mapping = {'u': 0, 'r': 1, 'd': 2, 'l': 3}
         self.regions = regions
+        self.fov_dict = fov_dict
+        self.rollout_observation = [[False for _ in range(fov_dict['fov_size'][1])] for _ in range(fov_dict['fov_size'][0])] # create a default observation for rollouts. this should never see the goal objects
         self.distribution = distribution
         self.distribution /= np.sum(self.distribution)
+        self.rollout_distribution = copy.deepcopy(self.distribution) # distribution to be used within rollouts. should not get saved to the real distribution
         self.obstacles = obstacles
         self.num_iterations = num_iterations
         self.c_param = c_param
@@ -84,9 +90,9 @@ class MCTS_Region_Estimated:
         centroid = region['centroid']
         distance_to_centroid = ((centroid[0] - self.cur_pos[0]) ** 2 + (centroid[1] - self.cur_pos[1]) ** 2) ** 0.5
         distance_factor = (1.0 / max(distance_to_centroid, 1.0)) * (5.9 / (self.size_x * self.size_y))
-        # avg_value = region['weight'] * (0.18 / (self.size_x * self.size_y))
+        avg_value = region['weight'] * (0.18 / (self.size_x * self.size_y))
         # avg_value = 0
-        reward = distance_factor * self.region_action_modifier
+        reward = distance_factor * avg_value * self.region_action_modifier
         # print('Region: ', region["index"])
         # print('avg val: ', np.round(avg_value, 8))
         # print('Dist fact: ', np.round(distance_factor, 8))
@@ -128,8 +134,9 @@ class MCTS_Region_Estimated:
     def rollout(self, action, cur_pos, fov):
         reward = 0
         for step in range(self.max_rollout_steps):
-            next_pos, path_or_action = self.action_to_pos(action, cur_pos)
-            if next_pos[0] < 0 or next_pos[0] >= self.size_x or next_pos[1] < 0 or next_pos[1] >= self.size_y:
+            next_pos, path_or_action = self.action_to_pos(action, cur_pos) # get next position
+            self.rollout_distribution = update_rollout_distribution(self.size_x, self.size_y, 0, cur_pos, fov, self.rollout_observation, self.fov_dict, self.obstacles, self.rollout_distribution) # update rollout distribution
+            if next_pos[0] < 0 or next_pos[0] >= self.size_x or next_pos[1] < 0 or next_pos[1] >= self.size_y: # make sure agent is within environment
                 continue
             if action > 3:
                 region_idx = action - 4
@@ -137,7 +144,7 @@ class MCTS_Region_Estimated:
                 reward += self.compute_region_action_reward(region)
             else:
                 if self.in_fov(next_pos, fov, cur_pos):
-                    reward += self.distribution[next_pos[0]][next_pos[1]]
+                    reward += self.rollout_distribution[next_pos[0]][next_pos[1]]
                 cur_pos = next_pos
         return reward
 
