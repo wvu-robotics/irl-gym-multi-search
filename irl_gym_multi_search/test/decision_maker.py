@@ -32,7 +32,7 @@ def search_decision_maker(size_x, size_y, cur_pos, observation, obstacles, last_
     #     best_path = path # update the path to be the current path
     # else:
     #     mcts_region = MCTS_Region(size_x, size_y, cur_pos, distribution, regions, fov_dict, current_fov, cur_orientation, last_action, obstacles,
-    #                               num_iterations=15, c_param=35.0, max_rollout_steps=30)
+    #                               num_iterations=15, c_param=500.0, max_rollout_steps=30)
     #     best_path = mcts_region.simulate()
     # print(best_path)
 
@@ -54,9 +54,9 @@ def search_decision_maker(size_x, size_y, cur_pos, observation, obstacles, last_
 
     ###############################  MCTS
 
-    # mcts_search = MCTS(size_x, size_y, cur_pos, distribution, fov_dict, current_fov, cur_orientation, last_action, obstacles,
-    #                         num_iterations=15, c_param=2.5, max_rollout_steps=60)
-    # best_path = mcts_search.simulate()
+    mcts_search = MCTS(size_x, size_y, cur_pos, distribution, fov_dict, current_fov, cur_orientation, last_action, obstacles,
+                            num_iterations=40, c_param=0.1, max_rollout_steps=60)
+    best_path = mcts_search.simulate()
     # print(best_path)
 
     ###############################  End of MCTS
@@ -70,9 +70,9 @@ def search_decision_maker(size_x, size_y, cur_pos, observation, obstacles, last_
     # print('rel pos', relative_pos)
 
     # Receding horizon search
-    temp_distribution = copy.deepcopy(distribution)
-    best_action, visited, reward = receding_horizon_search(size_x, size_y, cur_pos, temp_distribution, observation, fov_dict, obstacles, last_action, horizon=5, rollout=30, epsilon=0.6, boundary_penalty=-10.0)
-    # relative_pos = np.array(cur_pos) - np.array(cur_pos)
+    # temp_distribution = copy.deepcopy(distribution)
+    # best_action, visited, reward = receding_horizon_search(size_x, size_y, cur_pos, temp_distribution, observation, fov_dict, obstacles, last_action, horizon=10, rollout=15, epsilon=0.65, boundary_penalty=-10.0)
+    # # # relative_pos = np.array(cur_pos) - np.array(cur_pos) # not needed anymore
     # print(reward)
 
     # BFS event horizon search
@@ -141,8 +141,8 @@ def search_decision_maker(size_x, size_y, cur_pos, observation, obstacles, last_
     #     waypoint_reached = False
 
 
-    action = best_action
-    # action = best_path
+    # action = best_action
+    action = best_path
     # print('Action to take: ', action)
     print(action)
     

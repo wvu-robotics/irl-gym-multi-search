@@ -156,7 +156,7 @@ class MCTS_Region:
         for node in reversed(path):
             node.visits += 1
             node.value += reward
-            reward *= 0.99  # Discount factor for multi-step ahead reward
+            reward *= 0.999  # Discount factor for multi-step ahead reward
 
     def compute_new_region_weights(self):
         for region in self.regions:
@@ -176,8 +176,8 @@ class MCTS_Region:
 
     def calculate_path_to_region(self, region, cur_pos):
         # Find the nearest point within the region
-        max_point = self.get_nearest_point_in_region(region, cur_pos)
-        # max_point = self.get_highest_valued_point_in_region(region)
+        # max_point = self.get_nearest_point_in_region(region, cur_pos)
+        max_point = self.get_highest_valued_point_in_region(region)
 
         # Calculate the differences along both dimensions
         dx, dy = max_point[0] - cur_pos[0], max_point[1] - cur_pos[1]

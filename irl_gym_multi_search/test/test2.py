@@ -48,7 +48,9 @@ def update_search_distribution(size_x, size_y, num_agents, current_position, cur
     return search_distribution
 
 # Notes for the saved setup
-notes = 'Test 1 notes'
+notes = 'mcts_200x200'
+
+print('Running ', notes)
 
 # represents the field of view for an agent. Each value represents a single cell.
 # 1 is observable, 0 is not. The middle cell will be the agent's position within this grid. The size in both directions must be an odd number to ensure a center point.
@@ -80,25 +82,25 @@ fov_dict = {
     "fov_agent_position": fov_agent_position
 }
 
-cell_size = 12
+cell_size = 10
 render_fps = 60  # max fps
 render_fps_gif = 20  # gif fps
 
-render = False
+render = True
 save_to_gif = False
 save_data = True
 fixed_seed = False  # True: uses given seed below. False: each trial will be given a random seed.
 
-num_trials = 10  # number of trials
+num_trials = 25  # number of trials
 
 seed = 3
 rng_seed = rand.default_rng(seed=seed) # rng with seed
 
-max_steps = 3000
+max_steps = 40000
 
 # size of environment
-size_x = 70
-size_y = 70
+size_x = 50
+size_y = 50
 
 # Initialize start positions and directions
 start = [[5, 5]]
@@ -167,17 +169,34 @@ for i in range(num_trials): # loop through the number of trials
 
     # Probability Distributions
     # define the ranges for random values
+
+    # 50x50
     num_peaks_range = [num_objects + 2, num_objects + 5]  # range for number of peaks (could be overlapping peaks)
     peak_height_range = [0.18, 0.88]  # range for peak heights. values in probability within a square
     peak_width_range_x = [0.04, 0.12]  # range for peak width in x. values in % of total environment size
     peak_width_range_y = [0.04, 0.12]  # range for peak width in y. values in % of total environment size
     peak_rot_range = [0, np.deg2rad(180)]  # range for peak orientation
 
-    # num_peaks_range = [num_objects, num_objects + 3]  # range for number of peaks (could be overlapping peaks)
+    # 100x100
+    #num_peaks_range = [num_objects + 3, num_objects + 6]  # range for number of peaks (could be overlapping peaks)
+    #peak_height_range = [0.18, 0.88]  # range for peak heights. values in probability within a square
+    #peak_width_range_x = [0.03, 0.09]  # range for peak width in x. values in % of total environment size
+    #peak_width_range_y = [0.03, 0.09]  # range for peak width in y. values in % of total environment size
+    #peak_rot_range = [0, np.deg2rad(180)]  # range for peak orientation
+
+    # 150x150 or 200x200
+    # num_peaks_range = [num_objects + 5, num_objects + 8]  # range for number of peaks (could be overlapping peaks)
     # peak_height_range = [0.18, 0.88]  # range for peak heights. values in probability within a square
-    # peak_width_range_x = [0.28, 0.58]  # range for peak width in x. values in % of total environment size
-    # peak_width_range_y = [0.28, 0.58]  # range for peak width in y. values in % of total environment size
+    # peak_width_range_x = [0.025, 0.075]  # range for peak width in x. values in % of total environment size
+    # peak_width_range_y = [0.025, 0.075]  # range for peak width in y. values in % of total environment size
     # peak_rot_range = [0, np.deg2rad(180)]  # range for peak orientation
+
+    # 250x250
+    #num_peaks_range = [num_objects + 10, num_objects + 15]  # range for number of peaks (could be overlapping peaks)
+    #peak_height_range = [0.18, 0.88]  # range for peak heights. values in probability within a square
+    #peak_width_range_x = [0.01, 0.035]  # range for peak width in x. values in % of total environment size
+    #peak_width_range_y = [0.01, 0.035]  # range for peak width in y. values in % of total environment size
+    #peak_rot_range = [0, np.deg2rad(180)]  # range for peak orientation
 
     minRegionPeak = 1.2 / (size_x * size_y) # specifies the minimum value for a cell to be considered as a peak of a distribution
     minRegionValue = minRegionPeak # specifies the minimum value for a cell to be within a region (must be <= minRegionPeak)
@@ -310,7 +329,8 @@ for i in range(num_trials): # loop through the number of trials
             actions[agent_idx] = paths[agent_idx][0] # take the first action from the path given from the decision maker. Gym only accepts a single action at a time
 
         observation, r, done, is_trunc, info = env.step(actions) # simulate a single step with the enviroment. Each agent's action is also given here. The observation, stopping criteria, and extra info is returned
-        print(f'{i+1} {step}')
+        print(f'Trial {i+1} of {num_trials}')
+        print(f'Step: {step}')
         for agent_id in range(num_agents): # step through each agent
             search_observation[agent_id] = observation[agent_id]['obs'] # Save the observation for the agent (whether a goal has been seen or not within the current fov)
             current_position[agent_id][0] = observation[agent_id]['pose'][0]  # Update x value
@@ -377,3 +397,5 @@ if save_data:
 
     print('\nTotal time (seconds): ', overall_elapsed_time)
     print('\nTotal time (minutes): ', overall_elapsed_time / 60)
+
+    print('Completed: ', notes)
