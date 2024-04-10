@@ -19,10 +19,11 @@ classifiers = [
 dependencies = [
     "pandas",
     "pygame",
-    "scikit-learn",
+    "scikit-image",
     "imageio",
     "matplotlib",
     "numpy",
+    "gymnasium",
 ]
 
 [tools.setuptools]

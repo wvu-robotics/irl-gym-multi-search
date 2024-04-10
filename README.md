@@ -2,18 +2,18 @@
 Custom Farama Gymnasium environments
 
 ## Install 
-From *irl-gym/* , call
+From *irl-gym-multi-search/* , call
 
 ```
 python -m venv .env
 ```
 
 ```
-pip install -e .
+source .env/bin/activate
 ```
 
 ```
-source .env/bin/activate
+pip install -e .
 ```
 
 ## [Documentation](https://irl-gym.readthedocs.io/en/latest/)
