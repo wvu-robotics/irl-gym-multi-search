@@ -5,7 +5,15 @@ Custom Farama Gymnasium environments
 From *irl-gym/* , call
 
 ```
+python -m venv .env
+```
+
+```
 pip install -e .
+```
+
+```
+source .env/bin/activate
 ```
 
 ## [Documentation](https://irl-gym.readthedocs.io/en/latest/)
